@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BriefAI — Tech Stack Explained</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #09090E;
+    --bg-2: #111118;
+    --bg-3: #1A1A24;
+    --border: rgba(255,255,255,0.08);
+    --text: #EEEEF5;
+    --text-soft: #8888AA;
+    --text-faint: #44445A;
+    --green: #00E5A0;
+    --green-dim: rgba(0,229,160,0.07);
+    --green-border: rgba(0,229,160,0.25);
+    --amber: #FFB547;
+    --amber-dim: rgba(255,181,71,0.07);
+    --blue: #4D9FFF;
+    --blue-dim: rgba(77,159,255,0.07);
+    --purple: #A78BFA;
+    --purple-dim: rgba(167,139,250,0.07);
+    --red: #FF6B6B;
+  }
+
+  body {
+    font-family: 'Epilogue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--bg);
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .logo-text span { color: var(--green); }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-faint);
+    letter-spacing: 0.15em;
+  }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .page-title span { color: var(--green); }
+
+  .page-intro {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    max-width: 60ch;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── STACK DIAGRAM ── */
+  .stack-diagram {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 3rem;
+    overflow: hidden;
+  }
+
+  .stack-layer {
+    padding: 1.25rem 1rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  .stack-layer:last-child { border-right: none; }
+
+  .stack-layer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .stack-layer-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .l1 { background: var(--green-dim); }
+  .l1 .stack-layer-label { color: var(--green); }
+  .l1 .stack-layer-name { color: var(--green); }
+
+  .l2 { background: var(--blue-dim); }
+  .l2 .stack-layer-label { color: var(--blue); }
+  .l2 .stack-layer-name { color: var(--blue); }
+
+  .l3 { background: var(--amber-dim); }
+  .l3 .stack-layer-label { color: var(--amber); }
+  .l3 .stack-layer-name { color: var(--amber); }
+
+  .l4 { background: var(--purple-dim); }
+  .l4 .stack-layer-label { color: var(--purple); }
+  .l4 .stack-layer-name { color: var(--purple); }
+
+  .l5 { background: rgba(255,107,107,0.07); }
+  .l5 .stack-layer-label { color: var(--red); }
+  .l5 .stack-layer-name { color: var(--red); }
+
+  /* ── TECH CARDS ── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-title-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tech-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .tech-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    overflow: hidden;
+  }
+
+  .tech-card-left {
+    padding: 1.5rem;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .tech-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .tech-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .tech-card-right {
+    padding: 1.5rem;
+  }
+
+  .tech-what {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+
+  .tech-why-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 0.4rem;
+  }
+
+  .tech-why {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .tech-analogy {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-left: 2px solid;
+    font-size: 0.82rem;
+    font-style: italic;
+    color: var(--text-soft);
+    line-height: 1.65;
+  }
+
+  .green-card .tech-name { color: var(--green); }
+  .green-card .tech-type { color: var(--green); opacity: 0.6; }
+  .green-card .tech-analogy { border-color: var(--green); background: var(--green-dim); }
+
+  .blue-card .tech-name { color: var(--blue); }
+  .blue-card .tech-type { color: var(--blue); opacity: 0.6; }
+  .blue-card .tech-analogy { border-color: var(--blue); background: var(--blue-dim); }
+
+  .amber-card .tech-name { color: var(--amber); }
+  .amber-card .tech-type { color: var(--amber); opacity: 0.6; }
+  .amber-card .tech-analogy { border-color: var(--amber); background: var(--amber-dim); }
+
+  .purple-card .tech-name { color: var(--purple); }
+  .purple-card .tech-type { color: var(--purple); opacity: 0.6; }
+  .purple-card .tech-analogy { border-color: var(--purple); background: var(--purple-dim); }
+
+  .red-card .tech-name { color: var(--red); }
+  .red-card .tech-type { color: var(--red); opacity: 0.6; }
+  .red-card .tech-analogy { border-color: var(--red); background: rgba(255,107,107,0.05); }
+
+  /* ── HOW IT FLOWS ── */
+  .flow-section { margin-bottom: 3rem; }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .flow-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flow-step:last-child { border-bottom: none; }
+
+  .flow-step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-3);
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-faint);
+    border-right: 1px solid var(--border);
+  }
+
+  .flow-step-body {
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-2);
+  }
+
+  .flow-step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .flow-step-tech {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+  }
+
+  .flow-step-desc {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    line-height: 1.65;
+  }
+
+  /* ── NEXT STEPS ── */
+  .next-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .next-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+  }
+
+  .next-card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .next-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .next-card p {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    line-height: 1.65;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    background: var(--bg-3);
+    padding: 0.1rem 0.4rem;
+    color: var(--amber);
+    border: 1px solid var(--border);
+  }
+
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 700px) {
+    .stack-diagram { grid-template-columns: 1fr 1fr; }
+    .tech-card { grid-template-columns: 1fr; }
+    .tech-card-left { border-right: none; border-bottom: 1px solid var(--border); }
+    .next-grid { grid-template-columns: 1fr; }
+    .header { padding: 1.5rem; }
+    .main { padding: 2rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">B</div>
+    <div class="logo-text">Brief<span>AI</span></div>
+  </div>
+  <p class="header-tag">// Tech Stack Explained</p>
+</header>
+
+<div class="main">
+
+  <h1 class="page-title">What powers<br><span>BriefAI</span> — and why</h1>
+  <p class="page-intro">This document breaks down every technology used in the Content Brief Generator, explains what each one does, and — crucially — explains it in terms of what you already know from content operations. No jargon without translation.</p>
+
+  <!-- STACK DIAGRAM -->
+  <div class="stack-diagram reveal">
+    <div class="stack-layer l1">
+      <p class="stack-layer-label">UI Layer</p>
+      <p class="stack-layer-name">React</p>
+    </div>
+    <div class="stack-layer l2">
+      <p class="stack-layer-label">Styling</p>
+      <p class="stack-layer-name">CSS Variables</p>
+    </div>
+    <div class="stack-layer l3">
+      <p class="stack-layer-label">Logic</p>
+      <p class="stack-layer-name">JavaScript</p>
+    </div>
+    <div class="stack-layer l4">
+      <p class="stack-layer-label">AI Engine</p>
+      <p class="stack-layer-name">Anthropic API</p>
+    </div>
+    <div class="stack-layer l5">
+      <p class="stack-layer-label">Delivery</p>
+      <p class="stack-layer-name">Streaming SSE</p>
+    </div>
+  </div>
+
+  <!-- CORE TECHNOLOGIES -->
+  <div class="section-title reveal">
+    <div class="section-title-dot" style="background:var(--green)"></div>
+    Core Technologies
+  </div>
+
+  <div class="tech-grid">
+
+    <div class="tech-card green-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">React</p>
+        <p class="tech-type">UI Framework</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">React is a JavaScript library that lets you build user interfaces out of reusable pieces called <strong>components</strong>. Instead of manually updating the HTML every time data changes, React watches your data and automatically re-renders only the parts of the page that need to update.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">The brief generator has several pieces of state that need to stay in sync — the form inputs, the loading status, the output text streaming in word by word, whether the copy button has been clicked. React manages all of this automatically. Without it, you'd be writing a lot of messy manual DOM updates.</p>
+        <div class="tech-analogy">Content ops analogy: React is like a CMS template system. You define the structure once (the component), and it fills in the right content automatically based on what data it receives — just like a CMS renders the same article template with different content for every post.</div>
+      </div>
+    </div>
+
+    <div class="tech-card amber-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">useState & useCallback</p>
+        <p class="tech-type">React Hooks</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what"><strong>useState</strong> is how React components remember things. Every time the user types in the Topic field, useState stores that value and makes it available to the rest of the app. <strong>useCallback</strong> optimizes functions so React doesn't recreate them unnecessarily on every render.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">The app tracks: all 7 form fields, the current generation status (idle/generating/done/error), the streaming output text, the error message, and whether the copy button was clicked. Each one is a piece of state. useState is the mechanism that holds all of it.</p>
+        <div class="tech-analogy">Content ops analogy: useState is like a live Google Doc that everyone on the team can see update in real time. When you change a field, every part of the app that depends on that field re-renders with the new value instantly.</div>
+      </div>
+    </div>
+
+    <div class="tech-card blue-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">Fetch API & Async/Await</p>
+        <p class="tech-type">JavaScript / HTTP</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">The <strong>Fetch API</strong> is the browser's built-in tool for making HTTP requests — sending data to and receiving data from external servers. <strong>async/await</strong> is syntax that makes it readable: it lets you write code that waits for a response before proceeding, without creating callback hell.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">When the user hits Generate, the app sends a POST request to the Anthropic API with the form data as the prompt. Fetch handles the request, async/await makes sure the app waits for the response before trying to process it, and the try/catch block handles errors gracefully if the API fails.</p>
+        <div class="tech-analogy">Content ops analogy: Fetch is like a courier between your app and the AI. You hand it a package (the prompt), it delivers it to Anthropic's servers, waits for a response package, and brings it back. async/await just means "wait at the door until the courier returns."</div>
+      </div>
+    </div>
+
+    <div class="tech-card purple-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">Anthropic API + Streaming</p>
+        <p class="tech-type">AI / Server-Sent Events</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">The <strong>Anthropic API</strong> is the interface that lets applications send prompts to Claude and receive AI-generated responses. <strong>Streaming</strong> (via Server-Sent Events) means the response comes back word-by-word in real time rather than all at once after a long wait — creating the typewriter effect you see in the output panel.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">A full brief can take 10–15 seconds to generate. Without streaming, the user stares at a spinner for the entire duration. With streaming, they see text appearing immediately — which feels responsive and fast even though the total time is the same. The app reads each chunk as it arrives, appends it to the output string, and React re-renders the display.</p>
+        <div class="tech-analogy">Content ops analogy: Non-streaming is like waiting for an entire article to be written before you can read any of it. Streaming is like watching someone write it in a live Google Doc — you can read along as it forms, which feels much more immediate.</div>
+      </div>
+    </div>
+
+    <div class="tech-card green-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">Prompt Engineering</p>
+        <p class="tech-type">AI Input Design</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">Prompt engineering is the practice of crafting the instructions you send to an AI model to reliably produce the output you want. It involves specifying role, context, format requirements, and constraints in a structured way.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">The <code>buildPrompt()</code> function in the app takes the user's inputs and assembles them into a carefully structured prompt that tells Claude exactly what role to play, what inputs it has, and what structure the output must follow. This is where your content strategy expertise is genuinely irreplaceable — you know what a good brief contains better than any engineer who just learned what a brief is.</p>
+        <div class="tech-analogy">Content ops analogy: Prompt engineering is like writing a creative brief for the AI. The better and more specific your brief to the AI, the better the output it produces — exactly the same principle as briefing a human writer.</div>
+      </div>
+    </div>
+
+    <div class="tech-card red-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">CSS Custom Properties</p>
+        <p class="tech-type">Styling / Design System</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">CSS custom properties (also called CSS variables) let you define design values — colors, spacing, fonts — once in a central place using <code>:root { --green: #00E5A0 }</code> and then reference them throughout your stylesheet. Changing the value in one place updates it everywhere.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">The entire color palette, spacing system, and typography of BriefAI is defined in 15 CSS variables at the top of the stylesheet. This means the whole design is themeable from a single block of code — swap those values and the entire app changes appearance. It's also the foundation for building a proper design system as the app grows.</p>
+        <div class="tech-analogy">Content ops analogy: CSS variables are like a brand style guide that's actually enforced programmatically. Instead of hoping writers remember the brand's hex codes, the system references the source of truth directly every time.</div>
+      </div>
+    </div>
+
+    <div class="tech-card blue-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">Blob API & File Download</p>
+        <p class="tech-type">Browser API</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">The <strong>Blob API</strong> lets you create file-like objects in memory from strings or data. Combined with a dynamically created <code>&lt;a&gt;</code> tag and <code>URL.createObjectURL()</code>, it lets the browser trigger a file download without any server involvement.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">The Download .md button takes the brief text, wraps it in a Blob with <code>text/markdown</code> MIME type, creates a temporary download URL, and programmatically clicks an anchor tag — all in about 5 lines of code. The file downloads as a <code>.md</code> file named after the brief topic. No server, no upload, no backend needed.</p>
+        <div class="tech-analogy">Content ops analogy: This is the equivalent of hitting "Export" in a CMS — the app packages up the content and hands it to you as a file without needing to touch a server.</div>
+      </div>
+    </div>
+
+    <div class="tech-card amber-card reveal">
+      <div class="tech-card-left">
+        <p class="tech-name">dangerouslySetInnerHTML + Custom Markdown Parser</p>
+        <p class="tech-type">React / Text Rendering</p>
+      </div>
+      <div class="tech-card-right">
+        <p class="tech-what">React normally escapes all HTML to prevent security issues. <strong>dangerouslySetInnerHTML</strong> is React's escape hatch that lets you inject raw HTML into the DOM. The custom <code>renderMarkdown()</code> function converts the AI's plain text output (with # headings, ** bold, - lists) into formatted HTML before injecting it.</p>
+        <p class="tech-why-label">Why it's used here</p>
+        <p class="tech-why">Claude returns the brief as markdown text. Without parsing, the user would see raw <code>## SEO Strategy</code> instead of a styled heading. The parser converts headings, bold text, and bullet lists into real HTML elements so the output looks like a properly formatted document rather than raw text.</p>
+        <div class="tech-analogy">Content ops analogy: This is the rendering engine — the equivalent of a CMS taking raw markdown content and rendering it as styled HTML on a webpage. Same concept, implemented in about 20 lines of JavaScript.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- HOW IT FLOWS -->
+  <div class="section-title reveal">
+    <div class="section-title-dot" style="background:var(--blue)"></div>
+    How It All Flows Together
+  </div>
+
+  <div class="flow-section">
+    <div class="flow-steps reveal">
+      <div class="flow-step">
+        <div class="flow-step-num">1</div>
+        <div class="flow-step-body">
+          <p class="flow-step-title">User fills the form</p>
+          <p class="flow-step-tech" style="color:var(--green)">React · useState</p>
+          <p class="flow-step-desc">Each keystroke calls <code>updateField()</code> which calls <code>setForm()</code> — a useState setter. React re-renders only the affected input and the character counter. The Generate button watches whether the three required fields are filled and enables itself automatically.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">2</div>
+        <div class="flow-step-body">
+          <p class="flow-step-title">User hits Generate</p>
+          <p class="flow-step-tech" style="color:var(--amber)">JavaScript · buildPrompt()</p>
+          <p class="flow-step-desc">The <code>generate()</code> function fires. It sets status to 'generating' (React re-renders the button to show a spinner), clears previous output, then calls <code>buildPrompt(form)</code> — which assembles the form values into a structured prompt string ready to send to the API.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">3</div>
+        <div class="flow-step-body">
+          <p class="flow-step-title">Request sent to Anthropic API</p>
+          <p class="flow-step-tech" style="color:var(--blue)">Fetch API · async/await · stream: true</p>
+          <p class="flow-step-desc">Fetch sends a POST request to <code>api.anthropic.com/v1/messages</code> with the prompt, model name, max tokens, and <code>stream: true</code>. The API validates the request and begins generating a response, sending it back as a stream of Server-Sent Events rather than waiting to send everything at once.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">4</div>
+        <div class="flow-step-body">
+          <p class="flow-step-title">Streaming response processed chunk by chunk</p>
+          <p class="flow-step-tech" style="color:var(--purple)">ReadableStream · TextDecoder · JSON.parse</p>
+          <p class="flow-step-desc">The app reads the response body as a stream using <code>response.body.getReader()</code>. Each chunk arrives as raw bytes, gets decoded to a string, split into lines, parsed as JSON, and if it contains text delta content, appended to the <code>accumulated</code> string. <code>setOutput(accumulated)</code> triggers a React re-render on every chunk — creating the live typewriter effect.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">5</div>
+        <div class="flow-step-body">
+          <p class="flow-step-title">Output rendered as formatted HTML</p>
+          <p class="flow-step-tech" style="color:var(--red)">renderMarkdown() · dangerouslySetInnerHTML</p>
+          <p class="flow-step-desc">On every render, the current output string is passed through <code>renderMarkdown()</code> which converts markdown syntax to HTML. That HTML is injected into the output panel via <code>dangerouslySetInnerHTML</code>. During generation, a blinking cursor element is appended to the end so the user can see exactly where the text is up to.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">6</div>
+        <div class="flow-step-body">
+          <p class="flow-step-title">User copies or downloads the brief</p>
+          <p class="flow-step-tech" style="color:var(--green)">Clipboard API · Blob API</p>
+          <p class="flow-step-desc">Copy uses <code>navigator.clipboard.writeText(output)</code> — one line. Download creates a Blob from the output string, generates a temporary object URL, creates an invisible anchor tag, sets the filename dynamically from the topic field, and programmatically clicks it. The URL is then revoked to free memory. Status reverts to 'idle' when the user clears.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEXT STEPS -->
+  <div class="section-title reveal">
+    <div class="section-title-dot" style="background:var(--amber)"></div>
+    What to Build Next
+  </div>
+
+  <div class="next-grid reveal">
+    <div class="next-card">
+      <p class="next-card-tag" style="color:var(--green)">Version 2</p>
+      <h4>Save & History</h4>
+      <p>Add <code>localStorage</code> to persist generated briefs across sessions. Build a sidebar that shows past briefs with the ability to reload, rename, or delete them. This introduces local state persistence — a key React skill.</p>
+    </div>
+    <div class="next-card">
+      <p class="next-card-tag" style="color:var(--blue)">Version 3</p>
+      <h4>React + Vite Migration</h4>
+      <p>Move from the single HTML file to a proper Vite + React project. This introduces the real development workflow: <code>npm</code>, component files, imports, environment variables for the API key, and deployment via Vercel CLI.</p>
+    </div>
+    <div class="next-card">
+      <p class="next-card-tag" style="color:var(--amber)">Version 4</p>
+      <h4>Tailwind CSS Refactor</h4>
+      <p>Replace the custom CSS with Tailwind utility classes. Same visual output, completely different approach — and the workflow used in nearly every modern SaaS front end. A direct, practical introduction to the Tailwind mental model.</p>
+    </div>
+    <div class="next-card">
+      <p class="next-card-tag" style="color:var(--purple)">Version 5</p>
+      <h4>User Auth + Cloud Storage</h4>
+      <p>Add Supabase for authentication and brief storage in the cloud. Now it's a real product — multiple users, persistent data, shareable brief links. This is the version that goes in the portfolio as a full-stack project.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

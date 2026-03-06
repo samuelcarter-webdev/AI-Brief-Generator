@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BriefAI — Content Brief Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #09090E;
+    --bg-2: #111118;
+    --bg-3: #1A1A24;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #EEEEF5;
+    --text-soft: #8888AA;
+    --text-faint: #44445A;
+    --green: #00E5A0;
+    --green-dim: rgba(0,229,160,0.07);
+    --green-border: rgba(0,229,160,0.25);
+    --amber: #FFB547;
+    --amber-dim: rgba(255,181,71,0.07);
+    --red: #FF6B6B;
+    --red-dim: rgba(255,107,107,0.07);
+  }
+
+  html, body, #root { height: 100%; }
+
+  body {
+    font-family: 'Epilogue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .app {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--bg);
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text span { color: var(--green); }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    height: calc(100vh - 61px);
+  }
+
+  /* ── FORM PANEL ── */
+  .form-panel {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--bg-2);
+  }
+
+  .form-inner {
+    padding: 2rem;
+  }
+
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+
+  .form-sub {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .field {
+    margin-bottom: 1.25rem;
+  }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+  }
+
+  .field-label span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .field-required {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    font-family: 'Epilogue', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.15s;
+    resize: none;
+    appearance: none;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--text-faint); }
+
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    border-color: var(--green-border);
+    background: rgba(0,229,160,0.03);
+  }
+
+  .field textarea { min-height: 80px; line-height: 1.6; }
+
+  .field select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2344445A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  .field select option { background: var(--bg-3); }
+
+  .char-count {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-faint);
+    margin-top: 0.3rem;
+  }
+
+  .char-count.warn { color: var(--amber); }
+
+  /* ── TONE PILLS ── */
+  .tone-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .tone-pill {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--bg-3);
+    color: var(--text-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: capitalize;
+  }
+
+  .tone-pill:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .tone-pill.active {
+    border-color: var(--green-border);
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  /* ── DIVIDER ── */
+  .form-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── GENERATE BUTTON ── */
+  .generate-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--green);
+    color: var(--bg);
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .generate-btn:hover:not(:disabled) { opacity: 0.9; }
+  .generate-btn:active:not(:disabled) { transform: scale(0.99); }
+
+  .generate-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: var(--bg);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── OUTPUT PANEL ── */
+  .output-panel {
+    overflow-y: auto;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+    color: var(--text-faint);
+  }
+
+  .empty-state h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-soft);
+  }
+
+  .empty-state p {
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    max-width: 36ch;
+    line-height: 1.7;
+  }
+
+  .example-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .example-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .example-chip:hover {
+    border-color: var(--green-border);
+    color: var(--green);
+    background: var(--green-dim);
+  }
+
+  /* ── OUTPUT HEADER ── */
+  .output-header {
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-2);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .output-header-left h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+  }
+
+  .output-header-left p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+  }
+
+  .output-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .action-btn.copied {
+    border-color: var(--green-border);
+    color: var(--green);
+    background: var(--green-dim);
+  }
+
+  /* ── BRIEF OUTPUT ── */
+  .brief-output {
+    padding: 2rem;
+    flex: 1;
+  }
+
+  .brief-content {
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: var(--text-soft);
+    white-space: pre-wrap;
+    font-family: 'Epilogue', sans-serif;
+  }
+
+  /* Styled markdown-like rendering */
+  .brief-content h1, .brief-content h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--text);
+    margin: 1.75rem 0 0.75rem;
+    line-height: 1.3;
+  }
+
+  .brief-content h1 { font-size: 1.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  .brief-content h2 { font-size: 1rem; color: var(--green); }
+
+  .brief-content strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .brief-content ul, .brief-content ol {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  .brief-content li { margin-bottom: 0.3rem; }
+
+  .brief-content code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    background: var(--bg-3);
+    padding: 0.1rem 0.4rem;
+    color: var(--amber);
+    border: 1px solid var(--border);
+  }
+
+  /* ── STREAMING CURSOR ── */
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--green);
+    margin-left: 2px;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── ERROR STATE ── */
+  .error-banner {
+    margin: 1.5rem 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(255,107,107,0.25);
+    background: var(--red-dim);
+    display: flex;
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .error-banner-icon { color: var(--red); flex-shrink: 0; margin-top: 0.1rem; }
+
+  .error-banner p {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+  }
+
+  .error-banner strong { color: var(--red); display: block; margin-bottom: 0.25rem; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+
+  /* ── GENERATING STATE ── */
+  .generating-indicator {
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--green-dim);
+  }
+
+  .generating-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .generating-dot:nth-child(2) { animation-delay: 0.2s; }
+  .generating-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  .generating-indicator p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+    .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    .output-panel { min-height: 60vh; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useCallback } = React;
+
+const TONES = ['Professional', 'Conversational', 'Authoritative', 'Playful', 'Empathetic', 'Technical'];
+
+const FORMATS = [
+  { value: 'blog-post', label: 'Blog Post' },
+  { value: 'landing-page', label: 'Landing Page' },
+  { value: 'white-paper', label: 'White Paper' },
+  { value: 'email-campaign', label: 'Email Campaign' },
+  { value: 'social-series', label: 'Social Series' },
+  { value: 'case-study', label: 'Case Study' },
+  { value: 'product-page', label: 'Product Page' },
+  { value: 'video-script', label: 'Video Script' },
+];
+
+const EXAMPLES = [
+  { topic: 'AI tools for content teams', audience: 'Content managers at SaaS companies', format: 'blog-post', tone: 'Conversational', keyword: 'AI content operations', goal: 'Drive newsletter signups' },
+  { topic: 'Cloud security for enterprise', audience: 'IT directors at mid-size companies', format: 'white-paper', tone: 'Authoritative', keyword: 'enterprise cloud security', goal: 'Drive demo requests' },
+  { topic: 'Onboarding best practices', audience: 'HR managers at growing startups', format: 'landing-page', tone: 'Professional', keyword: 'employee onboarding software', goal: 'Free trial signups' },
+];
+
+function buildPrompt(form) {
+  return `You are an expert content strategist. Generate a comprehensive, structured content brief based on the following inputs.
+
+INPUTS:
+- Topic: ${form.topic}
+- Target Audience: ${form.audience}
+- Content Format: ${form.format}
+- Tone: ${form.tone}
+- Primary Keyword: ${form.keyword || 'Not specified'}
+- Business Goal: ${form.goal}
+- Additional Context: ${form.context || 'None provided'}
+
+Generate a complete content brief with the following sections:
+
+# Content Brief: [Create a compelling working title]
+
+## Overview
+A 2-3 sentence summary of the content piece and its strategic purpose.
+
+## Target Audience
+- **Primary reader:** Who specifically is this for
+- **Pain points:** What problems or questions they have
+- **Stage in journey:** Awareness / Consideration / Decision
+- **What they need to feel** after reading this
+
+## Strategic Objectives
+- **Primary goal:** The single most important outcome
+- **Secondary goals:** 2-3 supporting outcomes
+- **Success metric:** How you'd measure if this worked
+
+## SEO & Discoverability
+- **Primary keyword:** ${form.keyword || 'To be determined'}
+- **Secondary keywords:** 3-5 related terms to naturally incorporate
+- **Search intent:** What is someone looking for when they find this
+- **Meta description suggestion:** A compelling 155-character description
+
+## Content Structure
+Provide a detailed recommended outline with section headings and a one-line description of what each section covers.
+
+## Messaging Guidelines
+- **Core message:** The single idea the reader must leave with
+- **Key proof points:** 3-4 supporting arguments or evidence types
+- **Tone guidance:** Specific notes on voice for this piece
+- **What to avoid:** Any angles, phrases, or approaches to steer clear of
+
+## Production Notes
+- **Recommended word count:** With rationale
+- **Visual suggestions:** Charts, images, or interactive elements that would strengthen it
+- **Internal linking opportunities:** Types of existing content to reference
+- **Call to action:** Specific, compelling CTA copy suggestion
+
+## Writer's Checklist
+5-7 specific questions the writer should be able to answer "yes" to before considering this draft complete.
+
+Be specific, actionable, and opinionated. A great brief reduces ambiguity — avoid vague guidance.`;
+}
+
+// Simple markdown-to-HTML renderer
+function renderMarkdown(text) {
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+
+  for (let line of lines) {
+    if (line.startsWith('# ')) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<h1>${line.slice(2)}</h1>`;
+    } else if (line.startsWith('## ')) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<h2>${line.slice(3)}</h2>`;
+    } else if (line.startsWith('- ')) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      const content = line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html += `<li>${content}</li>`;
+    } else if (line.trim() === '') {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<br/>';
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      const content = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>');
+      html += `<p style="margin-bottom:0.5rem">${content}</p>`;
+    }
+  }
+
+  if (inList) html += '</ul>';
+  return html;
+}
+
+function App() {
+  const [form, setForm] = useState({
+    topic: '', audience: '', format: 'blog-post',
+    tone: 'Professional', keyword: '', goal: '', context: ''
+  });
+  const [output, setOutput] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | generating | done | error
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+  const abortRef = useRef(null);
+
+  const updateField = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  const loadExample = (ex) => {
+    setForm(f => ({ ...f, ...ex }));
+    setOutput('');
+    setStatus('idle');
+  };
+
+  const isValid = form.topic.trim() && form.audience.trim() && form.goal.trim();
+
+  const generate = useCallback(async () => {
+    if (!isValid) return;
+    setStatus('generating');
+    setOutput('');
+    setError('');
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          stream: true,
+          messages: [{ role: 'user', content: buildPrompt(form) }]
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || `API error ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                accumulated += parsed.delta.text;
+                setOutput(accumulated);
+              }
+            } catch {}
+          }
+        }
+      }
+
+      setStatus('done');
+    } catch (err) {
+      setError(err.message);
+      setStatus('error');
+    }
+  }, [form, isValid]);
+
+  const copyOutput = () => {
+    navigator.clipboard.writeText(output);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadOutput = () => {
+    const blob = new Blob([output], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `brief-${form.topic.slice(0,30).replace(/\s+/g,'-').toLowerCase()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const reset = () => {
+    setOutput('');
+    setStatus('idle');
+    setError('');
+  };
+
+  return (
+    <div className="app">
+
+      {/* HEADER */}
+      <header className="header">
+        <div className="logo">
+          <div className="logo-mark">B</div>
+          <div className="logo-text">Brief<span>AI</span></div>
+        </div>
+        <p className="header-tag">// AI Content Brief Generator · Starter Build</p>
+      </header>
+
+      <div className="main">
+
+        {/* FORM PANEL */}
+        <div className="form-panel">
+          <div className="form-inner">
+            <h2 className="form-title">Brief Parameters</h2>
+            <p className="form-sub">Fill in your content requirements. Fields marked required are the minimum needed to generate a useful brief.</p>
+
+            <p className="section-label">Core inputs</p>
+
+            <div className="field">
+              <div className="field-label">
+                <span>Topic</span>
+                <span className="field-required">required</span>
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. AI tools for content teams"
+                value={form.topic}
+                onChange={e => updateField('topic', e.target.value)}
+                maxLength={120}
+              />
+              <p className="char-count" style={{color: form.topic.length > 100 ? 'var(--amber)' : ''}}>{form.topic.length}/120</p>
+            </div>
+
+            <div className="field">
+              <div className="field-label">
+                <span>Target Audience</span>
+                <span className="field-required">required</span>
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. Content managers at B2B SaaS companies"
+                value={form.audience}
+                onChange={e => updateField('audience', e.target.value)}
+                maxLength={120}
+              />
+            </div>
+
+            <div className="field">
+              <div className="field-label">
+                <span>Business Goal</span>
+                <span className="field-required">required</span>
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. Drive demo signups, increase newsletter subscribers"
+                value={form.goal}
+                onChange={e => updateField('goal', e.target.value)}
+                maxLength={120}
+              />
+            </div>
+
+            <hr className="form-divider" />
+            <p className="section-label">Format & tone</p>
+
+            <div className="field">
+              <div className="field-label"><span>Content Format</span></div>
+              <select value={form.format} onChange={e => updateField('format', e.target.value)}>
+                {FORMATS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+              </select>
+            </div>
+
+            <div className="field">
+              <div className="field-label"><span>Tone</span></div>
+              <div className="tone-grid">
+                {TONES.map(t => (
+                  <button
+                    key={t}
+                    className={`tone-pill${form.tone === t ? ' active' : ''}`}
+                    onClick={() => updateField('tone', t)}
+                  >{t}</button>
+                ))}
+              </div>
+            </div>
+
+            <hr className="form-divider" />
+            <p className="section-label">SEO & context</p>
+
+            <div className="field">
+              <div className="field-label"><span>Primary Keyword</span></div>
+              <input
+                type="text"
+                placeholder="e.g. content operations tools"
+                value={form.keyword}
+                onChange={e => updateField('keyword', e.target.value)}
+                maxLength={80}
+              />
+            </div>
+
+            <div className="field">
+              <div className="field-label"><span>Additional Context</span></div>
+              <textarea
+                placeholder="Any extra context — competitor angles to avoid, brand guidelines, specific stats to include..."
+                value={form.context}
+                onChange={e => updateField('context', e.target.value)}
+                maxLength={400}
+              />
+              <p className={`char-count${form.context.length > 350 ? ' warn' : ''}`}>{form.context.length}/400</p>
+            </div>
+
+            <button
+              className="generate-btn"
+              onClick={generate}
+              disabled={!isValid || status === 'generating'}
+            >
+              {status === 'generating'
+                ? <><div className="spinner"></div> Generating Brief...</>
+                : status === 'done'
+                ? '↺ Regenerate Brief'
+                : '→ Generate Brief'
+              }
+            </button>
+          </div>
+        </div>
+
+        {/* OUTPUT PANEL */}
+        <div className="output-panel">
+
+          {status === 'idle' && (
+            <div className="empty-state">
+              <div className="empty-icon">◈</div>
+              <h3>Your brief will appear here</h3>
+              <p>Fill in the parameters on the left and hit Generate Brief to create a full structured content brief in seconds.</p>
+              <div className="example-chips">
+                <p style={{width:'100%', fontSize:'0.7rem', fontFamily:'JetBrains Mono, monospace', color:'var(--text-faint)', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:'0.25rem'}}>Try an example →</p>
+                {EXAMPLES.map((ex, i) => (
+                  <button key={i} className="example-chip" onClick={() => loadExample(ex)}>
+                    {ex.topic}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {status === 'error' && (
+            <>
+              <div className="empty-state">
+                <div className="empty-icon">✕</div>
+                <h3>Generation failed</h3>
+                <p>Something went wrong with the API call.</p>
+              </div>
+              <div className="error-banner" style={{margin:'0 2rem 2rem'}}>
+                <div className="error-banner-icon">⚠</div>
+                <p><strong>Error details</strong>{error}</p>
+              </div>
+            </>
+          )}
+
+          {(status === 'generating' || status === 'done') && (
+            <>
+              <div className="output-header">
+                <div className="output-header-left">
+                  <h3>{form.topic || 'Content Brief'}</h3>
+                  <p>{form.format.replace('-',' ').toUpperCase()} · {form.tone.toUpperCase()} · {form.audience.slice(0,40)}{form.audience.length > 40 ? '…' : ''}</p>
+                </div>
+                {status === 'done' && (
+                  <div className="output-actions">
+                    <button className={`action-btn${copied ? ' copied' : ''}`} onClick={copyOutput}>
+                      {copied ? '✓ Copied' : 'Copy'}
+                    </button>
+                    <button className="action-btn" onClick={downloadOutput}>↓ .md</button>
+                    <button className="action-btn" onClick={reset}>Clear</button>
+                  </div>
+                )}
+              </div>
+
+              {status === 'generating' && (
+                <div className="generating-indicator">
+                  <div className="generating-dot"></div>
+                  <div className="generating-dot"></div>
+                  <div className="generating-dot"></div>
+                  <p>Generating your brief...</p>
+                </div>
+              )}
+
+              <div className="brief-output">
+                <div
+                  className="brief-content"
+                  dangerouslySetInnerHTML={{
+                    __html: renderMarkdown(output) + (status === 'generating' ? '<span class="cursor"></span>' : '')
+                  }}
+                />
+              </div>
+            </>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
